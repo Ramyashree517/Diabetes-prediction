@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diabetes Prediction</title>
+    <link rel="stylesheet" href="../static/style.css" />
+    <style>
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+        max-width: 400px;
+        width: 80%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .modal-content h3 {
+        margin-bottom: 20px;
+      }
+      .modal-content button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .modal-content button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav>
+      <div class="container">
+        <div class="logo">
+          <h1>DiabetesPredict</h1>
+        </div>
+        <ul>
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#prediction">Prediction</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero">
+      <div class="container">
+        <h2>Predict Your Diabetes Risk</h2>
+        <p>
+          Get an instant prediction of your diabetes risk based on your health
+          parameters.
+        </p>
+        <a href="#prediction" class="cta-button">Start Prediction</a>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+      <div class="container">
+        <h2>About Diabetes Prediction</h2>
+        <p>
+          Diabetes is a chronic medical condition that occurs when your blood
+          sugar (glucose) levels are too high. Early detection and prediction of
+          diabetes can help in preventing severe complications. This system
+          analyzes factors like age, glucose level, BMI, blood pressure, and
+          insulin levels to predict your risk of diabetes.
+        </p>
+      </div>
+    </section>
+
+    <!-- Diabetes Prediction Form -->
+    <section id="prediction" class="section">
+      <div class="container">
+        <h1>Diabetes Prediction</h1>
+        <p>Enter the following details to predict if a person is diabetic:</p>
+        <form action="/predict" method="POST">
+          <label for="pregnancies">Pregnancies:</label>
+          <input type="number" id="pregnancies" name="pregnancies" required />
+
+          <label for="glucose">Glucose:</label>
+          <input type="number" id="glucose" name="glucose" required />
+
+          <label for="blood_pressure">Blood Pressure:</label>
+          <input
+            type="number"
+            id="blood_pressure"
+            name="blood_pressure"
+            required
+          />
+
+          <label for="skin_thickness">Skin Thickness:</label>
+          <input
+            type="number"
+            id="skin_thickness"
+            name="skin_thickness"
+            required
+          />
+
+          <label for="insulin">Insulin:</label>
+          <input type="number" id="insulin" name="insulin" required />
+
+          <label for="bmi">BMI:</label>
+          <input type="number" id="bmi" name="bmi" step="any" required />
+
+          <label for="diabetes_pedigree_function"
+            >Diabetes Pedigree Function:</label
+          >
+          <input
+            type="number"
+            id="diabetes_pedigree_function"
+            name="diabetes_pedigree_function"
+            step="any"
+            required
+          />
+
+          <label for="age">Age:</label>
+          <input type="number" id="age" name="age" required />
+
+          <button type="submit">Predict</button>
+        </form>
+
+        {% if result %}
+        <div class="result">
+          <h2>Prediction: {{ result }}</h2>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+      <div class="container">
+        <h2>Contact Us</h2>
+        <p>To book an appointment please fill out the form below:</p>
+
+        <!-- Appointment Booking Form -->
+        <form id="appointmentForm" method="POST">
+          <label for="name">Full Name:</label>
+          <input type="text" id="name" name="name" required />
+
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="phone">Phone Number:</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            pattern="[0-9]{10}"
+            required
+          />
+
+          <label for="date">Preferred Date:</label>
+          <input type="date" id="date" name="date" required />
+
+          <label for="time">Preferred Time:</label>
+          <input type="time" id="time" name="time" required />
+
+          <button type="submit">Book Appointment</button>
+        </form>
+
+        <div id="bookingResult"></div>
+
+        <address>
+          Email: <a href="mailto:info@abcclinic.com">info@abcclinic.com</a
+          ><br />
+          Phone: +123 456 7890
+        </address>
+      </div>
+    </section>
+
+    <!-- Modal Popup -->
+    <div id="appointmentModal" class="modal">
+      <div class="modal-content">
+        <h3 id="modalMessage"></h3>
+        <button onclick="closeModal()">OK</button>
+      </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+      <div class="container">
+        <p>© 2025 Diabetes Prediction System. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- JavaScript for Appointment Form and Modal -->
+    <script>
+      document
+        .getElementById("appointmentForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const formData = new FormData(this);
+
+          try {
+            const response = await fetch("/book-appointment", {
+              method: "POST",
+              body: formData,
+            });
+
+            const result = await response.json();
+            const modal = document.getElementById("appointmentModal");
+            const modalMessage = document.getElementById("modalMessage");
+
+            if (result.status === "success") {
+              modalMessage.textContent = result.message;
+              modalMessage.style.color = "#4CAF50"; // Green for success
+              modal.style.display = "flex";
+              this.reset(); // Clear the form
+            } else {
+              modalMessage.textContent = result.message;
+              modalMessage.style.color = "#ff6f61"; // Red for error
+              modal.style.display = "flex";
+            }
+          } catch (error) {
+            const modal = document.getElementById("appointmentModal");
+            const modalMessage = document.getElementById("modalMessage");
+            modalMessage.textContent = "Error: Unable to book appointment";
+            modalMessage.style.color = "#ff6f61"; // Red for error
+            modal.style.display = "flex";
+          }
+        });
+
+      function closeModal() {
+        const modal = document.getElementById("appointmentModal");
+        modal.style.display = "none";
+      }
+
+      // Close modal when clicking outside
+      window.onclick = function (event) {
+        const modal = document.getElementById("appointmentModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
+  </body>
+</html>
